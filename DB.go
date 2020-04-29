@@ -56,17 +56,36 @@ func AddNewForksInfo(forksCount uint16) {
 }
 
 func GetDailyData(tableName string) (dailyStats []OneDayStats) {
-	dataTable, err := Connection.Query(context.Background(), fmt.Sprintf("SELECT date, COUNT(date) FROM %v GROUP BY date", tableName))
+	var dataTable pgx.Rows
+	var err error
+
+	if tableName == "watchers" || tableName == "stars" || tableName == "forks" {
+		dataTable, err = Connection.Query(context.Background(), fmt.Sprintf("SELECT * FROM %v", tableName))
+		if err != nil {
+			QueryErrorHandler(err)
+		}
+
+		goto getData
+	}
+
+	dataTable, err = Connection.Query(context.Background(), fmt.Sprintf("SELECT date, COUNT(date) FROM %v GROUP BY date", tableName))
 	if err != nil {
 		QueryErrorHandler(err)
 	}
 
+getData:
 	defer dataTable.Close()
 
+	dailyStats = collectData(dataTable)
+
+	return
+}
+
+func collectData(dataTable pgx.Rows) (dailyStats []OneDayStats) {
 	for dataTable.Next() {
 		dayStats := new(OneDayStats)
 
-		err = dataTable.Scan(&dayStats.Day, &dayStats.NumberOfViews)
+		err := dataTable.Scan(&dayStats.Day, &dayStats.NumberOfStats)
 		if err != nil {
 			QueryErrorHandler(err)
 			continue
@@ -75,10 +94,9 @@ func GetDailyData(tableName string) (dailyStats []OneDayStats) {
 	}
 
 	if dataTable.Err() != nil {
-		QueryErrorHandler(err)
+		QueryErrorHandler(dataTable.Err())
 	}
-
-	return
+	return dailyStats
 }
 
 func QueryErrorHandler(err error) {
