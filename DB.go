@@ -23,12 +23,40 @@ func init() {
 func AddNewSiteView() {
 	_, err := Connection.Exec(context.Background(), "INSERT INTO public.site_views VALUES($1)", time.Now())
 	if err != nil {
-		fmt.Println(fmt.Errorf("Error while inserting: %v\n", err))
+		InsertErrorHandler(err)
 	}
 }
 
-func GetViewsData() (viewsStats []OneDayStats) {
-	dataTable, err := Connection.Query(context.Background(), "SELECT date, COUNT(date) FROM site_views GROUP BY date")
+func AddNewCVView() {
+	_, err := Connection.Exec(context.Background(), "INSERT INTO public.cv_views VALUES($1)", time.Now())
+	if err != nil {
+		InsertErrorHandler(err)
+	}
+}
+
+func AddNewWatchersInfo(watchersCount uint16) {
+	_, err := Connection.Exec(context.Background(), "INSERT INTO public.watchers VALUES($1, $2)", time.Now(), watchersCount)
+	if err != nil {
+		InsertErrorHandler(err)
+	}
+}
+
+func AddNewStarsInfo(starsCount uint16) {
+	_, err := Connection.Exec(context.Background(), "INSERT INTO public.stars VALUES($1, $2)", time.Now(), starsCount)
+	if err != nil {
+		InsertErrorHandler(err)
+	}
+}
+
+func AddNewForksInfo(forksCount uint16) {
+	_, err := Connection.Exec(context.Background(), "INSERT INTO public.forks VALUES($1, $2)", time.Now(), forksCount)
+	if err != nil {
+		InsertErrorHandler(err)
+	}
+}
+
+func GetDailyData(tableName string) (dailyStats []OneDayStats) {
+	dataTable, err := Connection.Query(context.Background(), fmt.Sprintf("SELECT date, COUNT(date) FROM %v GROUP BY date", tableName))
 	if err != nil {
 		QueryErrorHandler(err)
 	}
@@ -43,7 +71,7 @@ func GetViewsData() (viewsStats []OneDayStats) {
 			QueryErrorHandler(err)
 			continue
 		}
-		viewsStats = append(viewsStats, *dayStats)
+		dailyStats = append(dailyStats, *dayStats)
 	}
 
 	if dataTable.Err() != nil {
@@ -55,4 +83,8 @@ func GetViewsData() (viewsStats []OneDayStats) {
 
 func QueryErrorHandler(err error) {
 	fmt.Println(fmt.Errorf("Error when try using pgx.Query/pgx.QueryRow: %v", err))
+}
+
+func InsertErrorHandler(err error) {
+	fmt.Println(fmt.Errorf("Error while inserting: %v\n", err))
 }
