@@ -58,11 +58,11 @@ func GetCVViewsStats(writer http.ResponseWriter, _ *http.Request) {
 }
 
 func AddCVView(_ http.ResponseWriter, _ *http.Request) {
-	AddNewCVView()
+	AddNewDate(CVViews)
 }
 
 func AddSiteView(_ http.ResponseWriter, _ *http.Request) {
-	AddNewSiteView()
+	AddNewDate(SiteViews)
 }
 
 func GetViewsStats(writer http.ResponseWriter, _ *http.Request) {
@@ -85,7 +85,7 @@ func AddWatchersCount(username string) {
 		DecodingJSONError(err)
 	}
 
-	AddNewWatchersInfo(watchersCount)
+	AddNewDateWithStats(Watchers, watchersCount)
 }
 
 func AddStarsCount(username string) {
@@ -101,7 +101,7 @@ func AddStarsCount(username string) {
 		DecodingJSONError(err)
 	}
 
-	AddNewStarsInfo(starsCount)
+	AddNewDateWithStats(Starts, starsCount)
 }
 
 func AddForksCount(username string) {
@@ -117,7 +117,7 @@ func AddForksCount(username string) {
 		DecodingJSONError(err)
 	}
 
-	AddNewForksInfo(forksCount)
+	AddNewDateWithStats(Forks, forksCount)
 }
 
 func DecodingJSONError(err error) {

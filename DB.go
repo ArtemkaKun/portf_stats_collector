@@ -20,36 +20,15 @@ func init() {
 	}
 }
 
-func AddNewSiteView() {
-	_, err := Connection.Exec(context.Background(), "INSERT INTO public.site_views VALUES($1)", time.Now())
+func AddNewDate(table string) {
+	_, err := Connection.Exec(context.Background(), fmt.Sprintf("INSERT INTO %v VALUES($1)", table), time.Now())
 	if err != nil {
 		InsertErrorHandler(err)
 	}
 }
 
-func AddNewCVView() {
-	_, err := Connection.Exec(context.Background(), "INSERT INTO public.cv_views VALUES($1)", time.Now())
-	if err != nil {
-		InsertErrorHandler(err)
-	}
-}
-
-func AddNewWatchersInfo(watchersCount uint16) {
-	_, err := Connection.Exec(context.Background(), "INSERT INTO public.watchers VALUES($1, $2)", time.Now(), watchersCount)
-	if err != nil {
-		InsertErrorHandler(err)
-	}
-}
-
-func AddNewStarsInfo(starsCount uint16) {
-	_, err := Connection.Exec(context.Background(), "INSERT INTO public.stars VALUES($1, $2)", time.Now(), starsCount)
-	if err != nil {
-		InsertErrorHandler(err)
-	}
-}
-
-func AddNewForksInfo(forksCount uint16) {
-	_, err := Connection.Exec(context.Background(), "INSERT INTO public.forks VALUES($1, $2)", time.Now(), forksCount)
+func AddNewDateWithStats(table string, statCount uint16) {
+	_, err := Connection.Exec(context.Background(), fmt.Sprintf("INSERT INTO %v VALUES($1, $2)", table), time.Now(), statCount)
 	if err != nil {
 		InsertErrorHandler(err)
 	}
