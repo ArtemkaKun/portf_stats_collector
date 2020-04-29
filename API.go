@@ -72,6 +72,58 @@ func GetViewsStats(writer http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func EncodingJSONError(err error) {
+func AddWatchersCount(username string) {
+	resp, err := http.Get(fmt.Sprintf("http://localhost:8001/watchers/%v", username))
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer resp.Body.Close()
+
+	var watchersCount uint16
+	err = json.NewDecoder(resp.Body).Decode(&watchersCount)
+	if err != nil {
+		DecodingJSONError(err)
+	}
+
+	AddNewWatchersInfo(watchersCount)
+}
+
+func AddStarsCount(username string) {
+	resp, err := http.Get(fmt.Sprintf("http://localhost:8001/stars/%v", username))
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer resp.Body.Close()
+
+	var starsCount uint16
+	err = json.NewDecoder(resp.Body).Decode(&starsCount)
+	if err != nil {
+		DecodingJSONError(err)
+	}
+
+	AddNewStarsInfo(starsCount)
+}
+
+func AddForksCount(username string) {
+	resp, err := http.Get(fmt.Sprintf("http://localhost:8001/forks/%v", username))
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer resp.Body.Close()
+
+	var forksCount uint16
+	err = json.NewDecoder(resp.Body).Decode(&forksCount)
+	if err != nil {
+		DecodingJSONError(err)
+	}
+
+	AddNewForksInfo(forksCount)
+}
+
+func DecodingJSONError(err error) {
 	fmt.Println(fmt.Errorf("Error while decoding JSON: %v\n", err))
+}
+
+func EncodingJSONError(err error) {
+	fmt.Println(fmt.Errorf("Error while encoding JSON: %v\n", err))
 }
