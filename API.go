@@ -73,51 +73,47 @@ func GetViewsStats(writer http.ResponseWriter, _ *http.Request) {
 }
 
 func AddWatchersCount(username string) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost:8001/watchers/%v", username))
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer resp.Body.Close()
-
-	var watchersCount uint16
-	err = json.NewDecoder(resp.Body).Decode(&watchersCount)
-	if err != nil {
-		DecodingJSONError(err)
+	stats := GetGITStat(fmt.Sprintf("http://localhost:8001/watchers/%v", username))
+	if stats == 0 {
+		return
 	}
 
-	AddNewDateWithStats(Watchers, watchersCount)
+	AddNewDateWithStats(Watchers, stats)
 }
 
 func AddStarsCount(username string) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost:8001/stars/%v", username))
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer resp.Body.Close()
-
-	var starsCount uint16
-	err = json.NewDecoder(resp.Body).Decode(&starsCount)
-	if err != nil {
-		DecodingJSONError(err)
+	stats := GetGITStat(fmt.Sprintf("http://localhost:8001/stars/%v", username))
+	if stats == 0 {
+		return
 	}
 
-	AddNewDateWithStats(Starts, starsCount)
+	AddNewDateWithStats(Starts, stats)
 }
 
 func AddForksCount(username string) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost:8001/forks/%v", username))
+	stats := GetGITStat(fmt.Sprintf("http://localhost:8001/forks/%v", username))
+	if stats == 0 {
+		return
+	}
+
+	AddNewDateWithStats(Forks, stats)
+}
+
+func GetGITStat(request string) (statCount uint16) {
+	resp, err := http.Get(request)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	defer resp.Body.Close()
 
-	var forksCount uint16
-	err = json.NewDecoder(resp.Body).Decode(&forksCount)
+	err = json.NewDecoder(resp.Body).Decode(&statCount)
 	if err != nil {
 		DecodingJSONError(err)
+		return
 	}
 
-	AddNewDateWithStats(Forks, forksCount)
+	return
 }
 
 func DecodingJSONError(err error) {
